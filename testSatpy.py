@@ -30,19 +30,19 @@ import os
 # DEBUG INFO/DATA INFO
 ap = argparse.ArgumentParser(description="""
     Tool for testing mtg data collection and transformation
-    Example: python3.9 testMTGtoCOG.py --inpattern='*BODY*T_0073*.nc' --in='/mnt/hdd/mtgdata/MTG_data_0073/' --out='/mnt/hdd/mtgdata/output/' --satpyreader=fci_l1c_nc --channels=true_color_r
-    Example: python3.9 testMTGtoCOG.py --inpattern='*202207121015*' --in='/home/mbrath/mtgdata/H-MSG4__-MSG4________' --out='/mnt/hdd/mtgdata/output/' --satpyreader=seviri_l1b_hrit --channels=seviri_l1b_hrit
+    Example: python3.9 testSatpy.py --inpattern='*BODY*T_0073*.nc' --in='/mnt/hdd/mtgdata/MTG_data_0073/' --out='/mnt/hdd/mtgdata/output/' --satpyreader=fci_l1c_nc --channels=true_color_r
+    Example: python3.9 testSatpy.py --inpattern='*202207121015*' --in='/home/mbrath/mtgdata/H-MSG4__-MSG4________' --out='/mnt/hdd/mtgdata/output/' --satpyreader=seviri_l1b_hrit --channels=seviri_l1b_hrit
     """
 )
 ap.add_argument("--debug", required=False, help="Turns on debug output", action='store_true')
 ap.add_argument("--dependencies", required=False, help="Prints satpy dependencies status", action='store_true')
-ap.add_argument("--in", help="Input dir '/mnt/hdd/mtgdata/MTG_data_0073/', '/mnt/hdd/mtgdata/RC0001_compressed/'", required=False)
+ap.add_argument("--in", help="Input dir '/mnt/hdd/mtgdata/MTG_data_0073/', '/mnt/hdd/mtgdata/RC0001_compressed/'", required=True)
 ap.add_argument("--inpattern", help="Input filename pattern '/*BODY*T_0073*.nc', '/*BODY*T_0001*.nc'", required=False)
 ap.add_argument("--out", help="Out dir '/mnt/hdd/mtgdata/output/'", required=False)
 ap.add_argument("--channels", help="Comma separated list of channels: ir_133, ir_38, ir_87, ir_97", required=False)
 ap.add_argument("--getcomposites", required=False, help="Retrieves list of available composites", action='store_true')
 ap.add_argument("--getdatasets", required=False, help="Retrieves list of available datasets", action='store_true')
-ap.add_argument("--satpyreader", required=False, help="One of satpy readers MTG='fci_l1c_nc' MSG='seviri_l1b_hrit'")
+ap.add_argument("--satpyreader", required=True, help="One of satpy readers MTG='fci_l1c_nc' MSG='seviri_l1b_hrit'")
 
 args = vars(ap.parse_args())
 
@@ -60,10 +60,15 @@ print('Glob filtering...')
 files = glob.glob(os.path.join(srcdir, args["inpattern"]))
 
 if files is None:
-    print("No matched files found!")
-    exit
+    print("No matching files found!")
+    exit()
+if(not args["satpyreader"]):
+    print("Missing satpyreader")
+    exit()
 
 print('Scene loading...')
+
+
 scene = Scene(filenames=files, reader=args["satpyreader"])
 
 
